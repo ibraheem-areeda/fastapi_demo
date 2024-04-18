@@ -1,8 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
+from api.api import router as app_router
 
-app = FastAPI(docs_url=None)
+app = FastAPI()
+
+app.include_router(app_router)
 
 
-@app.get("/test")
-def test_api():
-    return {"hello": "test"}
+
+
+# @app.lifespan("startup")
+# async def startup():
+#     await database.connect()
+
+
+# @app.lifespan("shutdown")
+# async def shutdown():
+#     await database.disconnect()
