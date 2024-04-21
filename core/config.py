@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Awesome API"
+    app_name: str = "Fast Api Demo"
     DB_USER: str
     DB_PASSWORD: str
     DB_NAME: str
