@@ -10,7 +10,12 @@ class UserBase(BaseModel, extra='forbid'):
     username: str
     timezone: str = 'Universal'
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    phone: str
+    username: str
+    timezone: str = 'Universal'
     password: str
     is_super_admin: bool
     is_active:bool
@@ -24,3 +29,14 @@ class UserUpdate(BaseModel):
     password: str | None = None
     is_super_admin: bool | None = None
     is_active:bool | None = None
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+
+class DataToken(BaseModel):
+    id: str | None = None   
+
+class RefreshToken:
+    refresh_token:str | None = None   

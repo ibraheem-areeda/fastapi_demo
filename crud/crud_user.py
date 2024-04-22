@@ -1,10 +1,14 @@
-from schemas.schema_user import UserBase, UserUpdate
+from core.utils import hash_pass
+from schemas.schema_user import UserBase, UserCreate, UserUpdate
 from sqlalchemy.orm import session
 from models.model_user import ModelUser
 
 class User():
     
-    def create_user(db: session, user: UserBase):
+    def create_user(db: session, user: UserCreate):
+        hashed_pass = hash_pass(user.password)
+        user.password = hashed_pass
+
         user = ModelUser(**user.model_dump())
         db.add(user)
         db.commit()
