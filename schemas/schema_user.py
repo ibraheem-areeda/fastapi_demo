@@ -38,5 +38,9 @@ class Token(BaseModel):
 class DataToken(BaseModel):
     id: str | None = None   
 
-class RefreshToken:
-    refresh_token:str | None = None   
+class RefreshToken(BaseModel):
+    refresh_token:str 
+
+class UserDetails(BaseModel):
+    username: str | None = None
+    password: str | None = None

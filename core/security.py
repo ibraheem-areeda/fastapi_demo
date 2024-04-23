@@ -21,7 +21,6 @@ REFRESH_TOKEN_EXPIRE_MINUTES = 10
 
 def create_refresh_token(data: dict):
     to_encode = data.copy()
-    print(11111111111,to_encode)
     expire = datetime.now()+ timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
 
@@ -31,7 +30,6 @@ def create_refresh_token(data: dict):
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    print(11111111111,to_encode)
     expire = datetime.now()+ timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
 
@@ -41,7 +39,7 @@ def create_access_token(data: dict):
 
 
 
-def verify_token_access(token: str, credentials_exception):
+def verify_token(token: str, credentials_exception):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
         expire:datetime = datetime.strptime(payload.get("expire"), '%Y-%m-%d %H:%M:%S')
@@ -51,7 +49,7 @@ def verify_token_access(token: str, credentials_exception):
         
         if expire < datetime.now():
             raise credentials_exception
-        
+
     except JWTError as e:
         print(e)
         raise credentials_exception
@@ -65,7 +63,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
                                           headers={"WWW-Authenticate": "Bearer"})
     
     
-    user_info = verify_token_access(token, credentials_exception)
+    user_info = verify_token(token, credentials_exception)
     print(user_info)
     refresh_token = read_from_redis(user_info["user_id"])
     user_info["refresh_token"] = refresh_token
