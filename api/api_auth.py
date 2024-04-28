@@ -5,14 +5,14 @@ from core.security import JWTBearer, create_access_token, create_refresh_token, 
 from core.utils import verify_password
 from depends.get_db import get_db
 from models.model_user import ModelUser
-from schemas.schema_user import DataToken, RefreshToken, Token, UserDetails
+from schemas.schema_user import DataToken, RefreshToken, Token, UserBase, UserDetails
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 
 router = APIRouter()
 
-@router.post('/login', response_model=Token)
+@router.post('/login', response_model=UserBase)
 async def login(userdetails: UserDetails, db: Session = Depends(get_db)):
     user = db.query(ModelUser).filter(ModelUser.username == userdetails.username).first()  
     if not user:
@@ -34,9 +34,14 @@ async def login(userdetails: UserDetails, db: Session = Depends(get_db)):
                                             "user_phone":user.phone,
                                             "is_super_admin":user.is_super_admin
                                             })
+    
     write_to_redis(str(user.id), refresh_token)
+    
+    user_data = dict(UserBase(**user.__dict__))
+    user_data["access_token"] = access_token
+    user_data["refresh_token"] = refresh_token
 
-    return {"access_token":access_token,"refresh_token":refresh_token,"token_type":"bearer"}
+    return user_data
 
 @router.get('/currentUser')
 async def get_currentUser(token=Depends(JWTBearer())):

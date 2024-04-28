@@ -2,13 +2,15 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class UserBase(BaseModel, extra='forbid'):
+class UserBase(BaseModel):
     id:UUID 
     name: str
     email: str
     phone: str
     username: str
     timezone: str = 'Universal'
+    access_token: str | None =  None
+    refresh_token: str | None = None
 
 class UserCreate(BaseModel):
     name: str

@@ -15,8 +15,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 SECRET_KEY = "c304f5e9e155cbf8df50ddf770f16c77e85261c886df353fffe46507c5c1ae0c"  # created using  $ openssl rand -hex 32   
 JWT_REFRESH_SECRET_KEY = "4281b6471be273e0c25594baf66550b8727a24aed792e71c4e937911cf698eea"  # created using  $ openssl rand -hex 32   
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
-REFRESH_TOKEN_EXPIRE_MINUTES = 10
+ACCESS_TOKEN_EXPIRE_MINUTES = 10
+REFRESH_TOKEN_EXPIRE_MINUTES = 20
 
 
 def create_refresh_token(data: dict):
@@ -79,12 +79,17 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
+        error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not Validate Credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
         credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
         if credentials:
             if not credentials.scheme == "Bearer":
-                raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
+                raise error
             if not self.verify_jwt(credentials.credentials):
-                raise HTTPException(status_code=403, detail="Invalid token or expired token.")
+                raise error
             return credentials.credentials
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")

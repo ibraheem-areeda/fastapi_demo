@@ -4,14 +4,13 @@ from depends.get_db import get_db
 from schemas.schema_user import UserBase,UserCreate, UserUpdate
 from crud.crud_user import User
 from typing import Annotated
-from core.security import get_current_user, oauth2_scheme
+from core.security import JWTBearer, get_current_user, oauth2_scheme
 
 
 router = APIRouter()
 
 @router.get("/all", response_model=list[UserBase])
-async def get_all_users(token: Annotated[str, Depends(oauth2_scheme)],db: Session = Depends(get_db)):
-    get_current_user(token,db)
+async def get_all_users(token: Annotated[str, Depends(JWTBearer())],db: Session = Depends(get_db)):
     return User.get_all_users(db)
 
 @router.post("/create", response_model=UserBase)
