@@ -1,9 +1,10 @@
 import uuid
-from sqlalchemy import TIMESTAMP, UUID, Boolean, String
+from sqlalchemy import TIMESTAMP, UUID, Boolean, String, inspect
 from models.base_class import Base
 from sqlalchemy.orm import Mapped, mapped_column
+from models.mixin import TimestampMixin
 
-class ModelUser(Base):
+class ModelUser(TimestampMixin,Base):
     __tablename__ = "users"
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     name: Mapped[String] = mapped_column(String,nullable=False)

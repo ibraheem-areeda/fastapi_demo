@@ -32,6 +32,12 @@ class UserUpdate(BaseModel):
     is_super_admin: bool | None = None
     is_active:bool | None = None
 
+class UserReturn(BaseModel):
+    name: str 
+    email: str 
+    phone: str 
+    username: str 
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str

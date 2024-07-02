@@ -1,5 +1,6 @@
 
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from core.redis_service import read_from_redis, write_to_redis
 from core.security import JWTBearer, create_access_token, create_refresh_token, get_current_user, verify_token
 from core.utils import verify_password
@@ -14,30 +15,33 @@ router = APIRouter()
 
 @router.post('/login', response_model=UserBase)
 async def login(userdetails: UserDetails, db: Session = Depends(get_db)):
-    user = db.query(ModelUser).filter(ModelUser.username == userdetails.username).first()  
+    print(4444444444,userdetails)
+    async with db as session:
+            user = await session.execute(select(ModelUser).where(ModelUser.username == userdetails.username))
+            user = user.mappings().fetchone()
+            if user:
+                user = user["ModelUser"].asdict()
+
+    
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="the user not exists")
     
-    if not verify_password(userdetails.password,user.password):
+    if not verify_password(userdetails.password,user["password"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="the password is wrong")
     
-    access_token = create_access_token(data={"user_id":str(user.id),
-                                             "user_name":user.username,
-                                             "user_fullname":user.name,
-                                             "user_phone":user.phone,
-                                             "is_super_admin":user.is_super_admin
-                                             })
+    data={"user_id":str(user["id"]),
+        "user_name":user["username"],
+        "user_fullname":user["name"],
+        "user_phone":user["phone"],
+        "is_super_admin":user["is_super_admin"]
+        }
+    access_token = create_access_token(data)
     
-    refresh_token = create_refresh_token(data={"user_id":str(user.id),
-                                            "user_name":user.username,
-                                            "user_fullname":user.name,
-                                            "user_phone":user.phone,
-                                            "is_super_admin":user.is_super_admin
-                                            })
+    refresh_token = create_refresh_token(data)
     
-    write_to_redis(str(user.id), refresh_token)
+    write_to_redis(str(user["id"]), refresh_token)
     
-    user_data = dict(UserBase(**user.__dict__))
+    user_data = dict(UserBase(**user))
     user_data["access_token"] = access_token
     user_data["refresh_token"] = refresh_token
 
@@ -65,22 +69,16 @@ async def refreshToken_refresh(token: RefreshToken):
 
     if token.refresh_token != server_refresh_token:
         raise error
-
-    access_token = create_access_token(data={
+    data={
         "user_id": user_info["user_id"],
         "user_name": user_info["user_name"],
         "user_fullname": user_info["user_fullname"],
         "user_phone": user_info["user_phone"],
         "is_super_admin": user_info["is_super_admin"]
-    })
+    }
+    access_token = create_access_token(data)
 
-    refresh_token = create_refresh_token(data={
-        "user_id": user_info["user_id"],
-        "user_name": user_info["user_name"],
-        "user_fullname": user_info["user_fullname"],
-        "user_phone": user_info["user_phone"],
-        "is_super_admin": user_info["is_super_admin"]
-    })
+    refresh_token = create_refresh_token(data)
 
     write_to_redis(str(user_info["user_id"]), refresh_token)
 

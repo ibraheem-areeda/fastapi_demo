@@ -21,6 +21,8 @@ bcrypt = "^4.1.2"
 redis = "^5.0.3"
 aioredis = "^2.0.1"
 redis-om = "^0.2.2"
+celery = "^5.4.0"
+asyncpg = "^0.29.0"
 
 
 [build-system]

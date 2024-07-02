@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from depends.get_db import get_db
-from schemas.schema_user import UserBase,UserCreate, UserUpdate
+from schemas.schema_user import UserBase,UserCreate, UserReturn, UserUpdate
 from crud.crud_user import User
 from typing import Annotated
 from core.security import JWTBearer, get_current_user, oauth2_scheme
@@ -13,9 +13,9 @@ router = APIRouter()
 async def get_all_users(token: Annotated[str, Depends(JWTBearer())],db: Session = Depends(get_db)):
     return User.get_all_users(db)
 
-@router.post("/create", response_model=UserBase)
+@router.post("/create",response_model=UserReturn)
 async def create_user(user:UserCreate,  db: Session = Depends(get_db)):
-    return User.create_user(db=db, user=user)
+    return await User.create_user(db=db, user=user)
 
 @router.put("/update/{user_id}",response_model=UserBase)
 async def update_user(user_id:str,user:UserUpdate,db:Session = Depends(get_db)):

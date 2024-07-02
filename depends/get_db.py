@@ -1,9 +1,13 @@
 from database.session import SessionLocal
 
-
-def get_db():
-    db = SessionLocal()
+async def get_db():
     try:
-        yield db
+        db = SessionLocal()
+
+        async with db as session:
+            yield session
+    except:
+        await session.rollback()
+        raise
     finally:
-        db.close()
+        await session.close()
