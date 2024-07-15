@@ -1,6 +1,7 @@
 import asyncio
 from twilio.rest import Client
 
+from core.config import Settings
 from schemas.schema_user import Masssage
 from .custom_task import CustomTask
 from proj.celery import app
@@ -8,7 +9,8 @@ from proj.celery import app
 
 
 async def async_send_to_whatsapp(recever_name,phone_number,msg_body):
-
+    account_sid = Settings().ACCOUNT_SID
+    auth_token = Settings().AUTH_TOKEN
 
     client = Client(account_sid, auth_token)
 
