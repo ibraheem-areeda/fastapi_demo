@@ -23,6 +23,8 @@ aioredis = "^2.0.1"
 redis-om = "^0.2.2"
 celery = "^5.4.0"
 asyncpg = "^0.29.0"
+twilio = "^9.2.3"
+flower = "^2.0.1"
 
 
 [build-system]

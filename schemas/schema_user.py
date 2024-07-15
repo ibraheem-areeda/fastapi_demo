@@ -52,3 +52,8 @@ class RefreshToken(BaseModel):
 class UserDetails(BaseModel):
     username: str | None = None
     password: str | None = None
+
+class Masssage(BaseModel):
+    recever_name: str
+    phone_number: str
+    msg_body: str
